@@ -16,8 +16,8 @@
             .lazy = true,
         },
         .zglfw = .{
-            .url = "https://github.com/zig-gamedev/zglfw/archive/4a5ec6186173a6ae4d71ad01b64dac5561ef0b16.tar.gz",
-            .hash = "1220fb278bcd5f1be0096c841c29de2374806f3980160aa3e409f551b1c242254b74",
+            .url = "https://github.com/Senryoku/zglfw/archive/a7d7ef627aeaab604eeb22237214fb13dc7d8aa2.tar.gz",
+            .hash = "1220021bcbe652b78931e3d58268fb5254cc95b6d8d3544886e722b8871654222e4d",
             .lazy = true,
         },
         .zgpu = .{
