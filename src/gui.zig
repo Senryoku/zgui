@@ -51,8 +51,8 @@ pub fn init(allocator: std.mem.Allocator) void {
 
         _ = zguiCreateContext(null);
 
-        temp_buffer = std.ArrayList(u8).init(allocator);
-        temp_buffer.?.resize(3 * 1024 + 1) catch unreachable;
+        temp_buffer = std.ArrayList(u8).empty;
+        temp_buffer.?.resize(mem_allocator.?, 3 * 1024 + 1) catch unreachable;
 
         if (te_enabled) {
             te.init();
@@ -70,8 +70,8 @@ pub fn initWithExistingContext(allocator: std.mem.Allocator, ctx: Context) void 
 
     zguiSetCurrentContext(ctx);
 
-    temp_buffer = std.ArrayList(u8).init(allocator);
-    temp_buffer.?.resize(3 * 1024 + 1) catch unreachable;
+    temp_buffer = std.ArrayList(u8).empty;
+    temp_buffer.?.resize(mem_allocator.?, 3 * 1024 + 1) catch unreachable;
 
     if (te_enabled) {
         te.init();
@@ -82,7 +82,7 @@ pub fn getCurrentContext() ?Context {
 }
 pub fn deinit() void {
     if (zguiGetCurrentContext() != null) {
-        temp_buffer.?.deinit();
+        temp_buffer.?.deinit(mem_allocator.?);
         zguiDestroyContext(null);
 
         // Must be after destroy imgui context.
@@ -132,13 +132,13 @@ var mem_allocations: ?std.AutoHashMap(usize, usize) = null;
 var mem_mutex: std.Thread.Mutex = .{};
 const mem_alignment = 16;
 
-fn zguiMemAlloc(size: usize, _: ?*anyopaque) callconv(.C) ?*anyopaque {
+fn zguiMemAlloc(size: usize, _: ?*anyopaque) callconv(.c) ?*anyopaque {
     mem_mutex.lock();
     defer mem_mutex.unlock();
 
     const mem = mem_allocator.?.alignedAlloc(
         u8,
-        mem_alignment,
+        .fromByteUnits(mem_alignment),
         size,
     ) catch @panic("zgui: out of memory");
 
@@ -147,7 +147,7 @@ fn zguiMemAlloc(size: usize, _: ?*anyopaque) callconv(.C) ?*anyopaque {
     return mem.ptr;
 }
 
-fn zguiMemFree(maybe_ptr: ?*anyopaque, _: ?*anyopaque) callconv(.C) void {
+fn zguiMemFree(maybe_ptr: ?*anyopaque, _: ?*anyopaque) callconv(.c) void {
     if (maybe_ptr) |ptr| {
         mem_mutex.lock();
         defer mem_mutex.unlock();
@@ -163,8 +163,8 @@ fn zguiMemFree(maybe_ptr: ?*anyopaque, _: ?*anyopaque) callconv(.C) void {
 }
 
 extern fn zguiSetAllocatorFunctions(
-    alloc_func: ?*const fn (usize, ?*anyopaque) callconv(.C) ?*anyopaque,
-    free_func: ?*const fn (?*anyopaque, ?*anyopaque) callconv(.C) void,
+    alloc_func: ?*const fn (usize, ?*anyopaque) callconv(.c) ?*anyopaque,
+    free_func: ?*const fn (?*anyopaque, ?*anyopaque) callconv(.c) void,
 ) void;
 //--------------------------------------------------------------------------------------------------
 pub const ConfigFlags = packed struct(c_int) {
@@ -4022,7 +4022,7 @@ pub fn beginDragDropSource(flags: DragDropFlags) bool {
 
 /// Note: `payload_type` can be at most 32 characters long
 pub fn setDragDropPayload(payload_type: [*:0]const u8, data: []const u8, cond: Condition) bool {
-    return zguiSetDragDropPayload(payload_type, @alignCast(@ptrCast(data.ptr)), data.len, cond);
+    return zguiSetDragDropPayload(payload_type, @ptrCast(@alignCast(data.ptr)), data.len, cond);
 }
 pub fn endDragDropSource() void {
     zguiEndDragDropSource();
@@ -4103,7 +4103,7 @@ pub const DrawCmd = extern struct {
     user_callback_data_offset: c_int,
 };
 
-pub const DrawCallback = *const fn (*const anyopaque, *const DrawCmd) callconv(.C) void;
+pub const DrawCallback = *const fn (*const anyopaque, *const DrawCmd) callconv(.c) void;
 
 pub const getWindowDrawList = zguiGetWindowDrawList;
 pub const getBackgroundDrawList = zguiGetBackgroundDrawList;
