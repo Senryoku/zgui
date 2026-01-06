@@ -6,10 +6,8 @@
 // one of IMGUI_IMPL_WEBGPU_BACKEND_DAWN or IMGUI_IMPL_WEBGPU_BACKEND_WGPU must be provided.
 // Add #define to your imconfig.h file, or as a compilation flag in your build system.
 // This requirement will be removed once WebGPU stabilizes and backends converge on a unified interface.
-//#define IMGUI_IMPL_WEBGPU_BACKEND_DAWN
-
-// FIX(zig-gamedev)
-#define IMGUI_IMPL_WEBGPU_BACKEND_WGPU
+// #define IMGUI_IMPL_WEBGPU_BACKEND_DAWN
+// #define IMGUI_IMPL_WEBGPU_BACKEND_WGPU
 
 // Implemented features:
 //  [X] Renderer: User texture binding. Use 'WGPUTextureView' as ImTextureID. Read the FAQ about ImTextureID!
