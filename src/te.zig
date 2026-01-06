@@ -97,7 +97,7 @@ pub const TestEngine = opaque {
             @intCast(src.line),
             if (std.meta.hasFn(Callbacks, "gui"))
                 struct {
-                    fn f(context: *TestContext) callconv(.c) void {
+                    fn f(context: *TestContext) callconv(.C) void {
                         Callbacks.gui(context) catch undefined;
                     }
                 }.f
@@ -105,7 +105,7 @@ pub const TestEngine = opaque {
                 null,
             if (std.meta.hasFn(Callbacks, "run"))
                 struct {
-                    fn f(context: *TestContext) callconv(.c) void {
+                    fn f(context: *TestContext) callconv(.C) void {
                         Callbacks.run(context) catch undefined;
                     }
                 }.f
@@ -207,8 +207,8 @@ pub const TestContext = opaque {
     extern fn zguiTe_ContextKeyUp(ctx: *TestContext, key_chord: c_int) void;
 };
 
-const ImGuiTestGuiFunc = fn (context: *TestContext) callconv(.c) void;
-const ImGuiTestTestFunc = fn (context: *TestContext) callconv(.c) void;
+const ImGuiTestGuiFunc = fn (context: *TestContext) callconv(.C) void;
+const ImGuiTestTestFunc = fn (context: *TestContext) callconv(.C) void;
 
 pub const createContext = zguiTe_CreateContext;
 extern fn zguiTe_CreateContext() *TestEngine;

@@ -79,11 +79,6 @@ extern "C"
         ImGui::SetWindowFocus(name);
     }
 
-    ZGUI_API void zguiSetWindowFontScale(float scale) 
-    {
-        ImGui::SetWindowFontScale(scale);
-    }
-
     ZGUI_API void zguiSetKeyboardFocusHere(int offset)
     {
         ImGui::SetKeyboardFocusHere(offset);
@@ -1095,26 +1090,40 @@ extern "C"
     }
 
     ZGUI_API void zguiImage(
-        ImTextureID user_texture_id,
+        ImTextureRef user_texture_ref,
+        float w,
+        float h,
+        const float uv0[2],
+        const float uv1[2])
+    {
+        ImGui::Image(
+            user_texture_ref,
+            {w, h},
+            {uv0[0], uv0[1]},
+            {uv1[0], uv1[1]});
+    }
+
+    ZGUI_API void zguiImageWithBg(
+        ImTextureRef user_texture_ref,
         float w,
         float h,
         const float uv0[2],
         const float uv1[2],
-        const float tint_col[4],
-        const float border_col[4])
+        const float bg_col[4],
+        const float tint_col[4])
     {
-        ImGui::Image(
-            user_texture_id,
+        ImGui::ImageWithBg(
+            user_texture_ref,
             {w, h},
             {uv0[0], uv0[1]},
             {uv1[0], uv1[1]},
-            {tint_col[0], tint_col[1], tint_col[2], tint_col[3]},
-            {border_col[0], border_col[1], border_col[2], border_col[3]});
+            {bg_col[0], bg_col[1], bg_col[2], bg_col[3]},
+            {tint_col[0], tint_col[1], tint_col[2], tint_col[3]});
     }
 
     ZGUI_API bool zguiImageButton(
         const char *str_id,
-        ImTextureID user_texture_id,
+        ImTextureRef user_texture_ref,
         float w,
         float h,
         const float uv0[2],
@@ -1124,7 +1133,7 @@ extern "C"
     {
         return ImGui::ImageButton(
             str_id,
-            user_texture_id,
+            user_texture_ref,
             {w, h},
             {uv0[0], uv0[1]},
             {uv1[0], uv1[1]},
@@ -1361,9 +1370,9 @@ extern "C"
         uv[1] = cs[1];
     }
 
-    ZGUI_API void zguiPushFont(ImFont *font)
+    ZGUI_API void zguiPushFont(ImFont *font, float font_size_base_unscaled)
     {
-        ImGui::PushFont(font);
+        ImGui::PushFont(font, font_size_base_unscaled);
     }
 
     ZGUI_API void zguiPopFont(void)
@@ -1538,6 +1547,11 @@ extern "C"
         return ImGui::GetIO().Fonts->AddFontFromMemoryTTF(font_data, font_size, size_pixels, &config, nullptr);
     }
 
+    ZGUI_API void zguiIoRemoveFont(ImFont* font)
+    {
+        ImGui::GetIO().Fonts->RemoveFont(font);
+    }
+
     ZGUI_API ImFontConfig zguiFontConfig_Init(void)
     {
         return ImFontConfig();
@@ -1553,70 +1567,9 @@ extern "C"
         ImGui::GetIO().FontDefault = font;
     }
 
-    ZGUI_API unsigned char *zguiIoGetFontsTexDataAsRgba32(int *width, int *height)
+    ZGUI_API ImTextureRef zguiIoGetFontsTexRef(void)
     {
-        unsigned char *font_pixels;
-        int font_width, font_height;
-        ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&font_pixels, &font_width, &font_height);
-        *width = font_width;
-        *height = font_height;
-        return font_pixels;
-    }
-
-    ZGUI_API void zguiIoSetFontsTexId(ImTextureID id)
-    {
-        ImGui::GetIO().Fonts->TexID = id;
-    }
-
-    ZGUI_API ImTextureID zguiIoGetFontsTexId(void)
-    {
-        return ImGui::GetIO().Fonts->TexID;
-    }
-
-    // Glyph Ranges
-    ZGUI_API const ImWchar *zguiIoGetGlyphRangesDefault(void)
-    {
-        return ImGui::GetIO().Fonts->GetGlyphRangesDefault();
-    }
-
-    ZGUI_API const ImWchar *zguiIoGetGlyphRangesGreek(void)
-    {
-        return ImGui::GetIO().Fonts->GetGlyphRangesGreek();
-    }
-
-    ZGUI_API const ImWchar *zguiIoGetGlyphRangesKorean(void)
-    {
-        return ImGui::GetIO().Fonts->GetGlyphRangesKorean();
-    }
-
-    ZGUI_API const ImWchar *zguiIoGetGlyphRangesJapanese(void)
-    {
-        return ImGui::GetIO().Fonts->GetGlyphRangesJapanese();
-    }
-
-    ZGUI_API const ImWchar *zguiIoGetGlyphRangesChineseFull(void)
-    {
-        return ImGui::GetIO().Fonts->GetGlyphRangesChineseFull();
-    }
-
-    ZGUI_API const ImWchar *zguiIoGetGlyphRangesChineseSimplifiedCommon(void)
-    {
-        return ImGui::GetIO().Fonts->GetGlyphRangesChineseSimplifiedCommon();
-    }
-
-    ZGUI_API const ImWchar *zguiIoGetGlyphRangesCyrillic(void)
-    {
-        return ImGui::GetIO().Fonts->GetGlyphRangesCyrillic();
-    }
-
-    ZGUI_API const ImWchar *zguiIoGetGlyphRangesThai(void)
-    {
-        return ImGui::GetIO().Fonts->GetGlyphRangesThai();
-    }
-
-    ZGUI_API const ImWchar *zguiIoGetGlyphRangesVietnamese(void)
-    {
-        return ImGui::GetIO().Fonts->GetGlyphRangesVietnamese();
+        return ImGui::GetIO().Fonts->TexRef;
     }
 
     ZGUI_API void zguiIoSetConfigWindowsMoveFromTitleBarOnly(bool enabled)
@@ -1651,6 +1604,11 @@ extern "C"
     ZGUI_API void zguiIoSetConfigFlags(ImGuiConfigFlags flags)
     {
         ImGui::GetIO().ConfigFlags = flags;
+    }
+
+    ZGUI_API void zguiIoSetBackendFlags(ImGuiBackendFlags flags)
+    {
+        ImGui::GetIO().BackendFlags = flags;
     }
 
     ZGUI_API void zguiIoSetDisplaySize(float width, float height)
@@ -1827,27 +1785,6 @@ extern "C"
         pos[1] = p.y;
     }
 
-    ZGUI_API void zguiGetContentRegionMax(float pos[2])
-    {
-        const ImVec2 p = ImGui::GetContentRegionMax();
-        pos[0] = p.x;
-        pos[1] = p.y;
-    }
-
-    ZGUI_API void zguiGetWindowContentRegionMin(float pos[2])
-    {
-        const ImVec2 p = ImGui::GetWindowContentRegionMin();
-        pos[0] = p.x;
-        pos[1] = p.y;
-    }
-
-    ZGUI_API void zguiGetWindowContentRegionMax(float pos[2])
-    {
-        const ImVec2 p = ImGui::GetWindowContentRegionMax();
-        pos[0] = p.x;
-        pos[1] = p.y;
-    }
-
     ZGUI_API void zguiPushTextWrapPos(float wrap_pos_x)
     {
         ImGui::PushTextWrapPos(wrap_pos_x);
@@ -1977,36 +1914,6 @@ extern "C"
     {
         ImGui::CloseCurrentPopup();
     }
-
-    ZGUI_API void zguiPlotLines(
-        const char* label, 
-        const float* values, 
-        int values_count, 
-        int values_offset, 
-        const char* overlay_text, 
-        float scale_min, 
-        float scale_max, 
-        float graph_size[2], 
-        int stride)
-    {
-        ImGui::PlotLines(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, ImVec2(graph_size[0], graph_size[1]), stride);
-    }  
-    
-
-    ZGUI_API void zguiPlotHistogram(
-        const char* label, 
-        const float* values, 
-        int values_count, 
-        int values_offset, 
-        const char* overlay_text, 
-        float scale_min, 
-        float scale_max, 
-        float graph_size[2], 
-        int stride)
-    {
-        ImGui::PlotHistogram(label, values, values_count, values_offset, overlay_text, scale_min, scale_max, ImVec2(graph_size[0], graph_size[1]), stride);
-    }
-
     //--------------------------------------------------------------------------------------------------
     //
     // Tables
@@ -2325,14 +2232,14 @@ extern "C"
         draw_list->PopClipRect();
     }
 
-    ZGUI_API void zguiDrawList_PushTextureId(ImDrawList *draw_list, ImTextureID texture_id)
+    ZGUI_API void zguiDrawList_PushTextureRef(ImDrawList *draw_list, ImTextureRef texture_ref)
     {
-        draw_list->PushTextureID(texture_id);
+        draw_list->PushTexture(texture_ref);
     }
 
-    ZGUI_API void zguiDrawList_PopTextureId(ImDrawList *draw_list)
+    ZGUI_API void zguiDrawList_PopTexture(ImDrawList *draw_list)
     {
-        draw_list->PopTextureID();
+        draw_list->PopTexture();
     }
 
     ZGUI_API void zguiDrawList_GetClipRectMin(ImDrawList *draw_list, float clip_min[2])
@@ -2519,21 +2426,6 @@ extern "C"
         draw_list->AddText({pos[0], pos[1]}, col, text_begin, text_end);
     }
 
-    ZGUI_API void zguiDrawList_AddTextExtended(
-        ImDrawList *draw_list,
-        ImFont* font, 
-        float font_size, 
-        const float pos[2], 
-        ImU32 col, 
-        const char* text_begin, 
-        const char* text_end, 
-        float wrap_width, 
-        const float cpu_fine_clip_rect[][4])
-    {   
-        const ImVec4* clip_rect = (cpu_fine_clip_rect != nullptr) ? (const ImVec4 *)&cpu_fine_clip_rect[0][0] : nullptr;
-        draw_list->AddText(font, font_size, {pos[0], pos[1]}, col, text_begin, text_end, wrap_width, clip_rect);
-    }
-
     ZGUI_API void zguiDrawList_AddPolyline(
         ImDrawList *draw_list,
         const float points[][2],
@@ -2592,7 +2484,7 @@ extern "C"
 
     ZGUI_API void zguiDrawList_AddImage(
         ImDrawList *draw_list,
-        ImTextureID user_texture_id,
+        ImTextureRef user_texture_ref,
         const float pmin[2],
         const float pmax[2],
         const float uvmin[2],
@@ -2600,7 +2492,7 @@ extern "C"
         ImU32 col)
     {
         draw_list->AddImage(
-            user_texture_id,
+            user_texture_ref,
             {pmin[0], pmin[1]},
             {pmax[0], pmax[1]},
             {uvmin[0], uvmin[1]},
@@ -2610,7 +2502,7 @@ extern "C"
 
     ZGUI_API void zguiDrawList_AddImageQuad(
         ImDrawList *draw_list,
-        ImTextureID user_texture_id,
+        ImTextureRef user_texture_ref,
         const float p1[2],
         const float p2[2],
         const float p3[2],
@@ -2622,7 +2514,7 @@ extern "C"
         ImU32 col)
     {
         draw_list->AddImageQuad(
-            user_texture_id,
+            user_texture_ref,
             {p1[0], p1[1]},
             {p2[0], p2[1]},
             {p3[0], p3[1]},
@@ -2636,7 +2528,7 @@ extern "C"
 
     ZGUI_API void zguiDrawList_AddImageRounded(
         ImDrawList *draw_list,
-        ImTextureID user_texture_id,
+        ImTextureRef user_texture_ref,
         const float pmin[2],
         const float pmax[2],
         const float uvmin[2],
@@ -2646,7 +2538,7 @@ extern "C"
         ImDrawFlags flags)
     {
         draw_list->AddImageRounded(
-            user_texture_id,
+            user_texture_ref,
             {pmin[0], pmin[1]},
             {pmax[0], pmax[1]},
             {uvmin[0], uvmin[1]},

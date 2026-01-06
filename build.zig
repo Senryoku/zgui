@@ -11,11 +11,9 @@ pub const Backend = enum {
     sdl2_opengl3,
     osx_metal,
     sdl2,
-    sdl2_renderer,
     sdl3,
-    sdl3_opengl3,
-    sdl3_renderer,
     sdl3_gpu,
+    sdl3_opengl3,
 };
 
 pub fn build(b: *std.Build) void {
@@ -93,35 +91,28 @@ pub fn build(b: *std.Build) void {
         "-Wno-availability",
     };
 
-    const imgui = if (options.shared) blk: {
-        const lib = b.addLibrary(.{
-            .name = "imgui",
-            .root_module = b.createModule(.{
-                .target = target,
-                .optimize = optimize,
-            }),
-            .linkage = .static,
-        });
-
-        if (target.result.os.tag == .windows) {
-            lib.root_module.addCMacro("IMGUI_API", "__declspec(dllexport)");
-            lib.root_module.addCMacro("IMPLOT_API", "__declspec(dllexport)");
-            lib.root_module.addCMacro("ZGUI_API", "__declspec(dllexport)");
-        }
-
-        if (target.result.os.tag == .macos) {
-            lib.linker_allow_shlib_undefined = true;
-        }
-
-        break :blk lib;
-    } else b.addLibrary(.{
+    const imgui = b.addLibrary(.{
         .name = "imgui",
+        .linkage = if (options.shared) .dynamic else .static,
         .root_module = b.createModule(.{
             .target = target,
             .optimize = optimize,
         }),
-        .linkage = .static,
     });
+
+    imgui.root_module.addCMacro("IMGUI_DISABLE_OBSOLETE_FUNCTIONS", "");
+
+    if (options.shared) {
+        if (target.result.os.tag == .windows) {
+            imgui.root_module.addCMacro("IMGUI_API", "__declspec(dllexport)");
+            imgui.root_module.addCMacro("IMPLOT_API", "__declspec(dllexport)");
+            imgui.root_module.addCMacro("ZGUI_API", "__declspec(dllexport)");
+        }
+
+        if (target.result.os.tag == .macos) {
+            imgui.linker_allow_shlib_undefined = true;
+        }
+    }
 
     b.installArtifact(imgui);
 
@@ -356,18 +347,6 @@ pub fn build(b: *std.Build) void {
                 .flags = cflags,
             });
         },
-        .sdl2_renderer => {
-            if (b.lazyDependency("zsdl", .{})) |zsdl| {
-                imgui.addIncludePath(zsdl.path("libs/sdl2/include"));
-            }
-            imgui.addCSourceFiles(.{
-                .files = &.{
-                    "libs/imgui/backends/imgui_impl_sdl2.cpp",
-                    "libs/imgui/backends/imgui_impl_sdlrenderer2.cpp",
-                },
-                .flags = cflags,
-            });
-        },
         .sdl3_gpu => {
             if (b.lazyDependency("zsdl", .{})) |zsdl| {
                 imgui.addIncludePath(zsdl.path("libs/sdl3/include"));
@@ -376,18 +355,6 @@ pub fn build(b: *std.Build) void {
                 .files = &.{
                     "libs/imgui/backends/imgui_impl_sdl3.cpp",
                     "libs/imgui/backends/imgui_impl_sdlgpu3.cpp",
-                },
-                .flags = cflags,
-            });
-        },
-        .sdl3_renderer => {
-            if (b.lazyDependency("zsdl", .{})) |zsdl| {
-                imgui.addIncludePath(zsdl.path("libs/sdl3/include"));
-            }
-            imgui.addCSourceFiles(.{
-                .files = &.{
-                    "libs/imgui/backends/imgui_impl_sdl3.cpp",
-                    "libs/imgui/backends/imgui_impl_sdlrenderer3.cpp",
                 },
                 .flags = cflags,
             });
@@ -406,7 +373,7 @@ pub fn build(b: *std.Build) void {
         },
         .sdl3 => {
             if (b.lazyDependency("zsdl", .{})) |zsdl| {
-                imgui.addIncludePath(zsdl.path("libs/sdl3/include"));
+                imgui.addIncludePath(zsdl.path("libs/sdl3/include/SDL3"));
             }
             imgui.addCSourceFiles(.{
                 .files = &.{
