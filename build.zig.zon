@@ -23,7 +23,9 @@
             .lazy = true,
         },
         .zgpu = .{
-            .path = "../zgpu",
+            .url = "git+https://github.com/Senryoku/zgpu.git#dawn-update",
+            .hash = "zgpu-0.14.0-dev-nqFT5CXEBgCkHKBT_sSrmbkaKAITolCfOuTjXNxV1aOz",
+            // .path = "../zgpu",
         },
         .zsdl = .{
             .url = "https://github.com/zig-gamedev/zsdl/archive/89c1fe2d7ef5020c68e71ac574195f09fc949cce.tar.gz",
