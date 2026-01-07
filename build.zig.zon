@@ -23,10 +23,9 @@
             .lazy = true,
         },
         .zgpu = .{
-            .url = "git+https://github.com/Senryoku/zgpu.git#fb43d11c1cccabe40bd148b58eba7db671b88c56",
-            .hash = "zgpu-0.14.0-dev-nqFT5IJ5JQHv2rV2jZ34UYJw3pkrggUj1imEIeqDDTGp",
+            .url = "git+https://github.com/Senryoku/zgpu.git#d477580b5ac16a684c03c925c6bcf41d577f0196",
+            .hash = "zgpu-0.14.0-dev-nqFT5OGBzgVHx2DPmVBDENunPVqsnjvYumDMr-0AP9lJ",
             .lazy = true,
-            // .path = "../zgpu",
         },
         .zsdl = .{
             .url = "https://github.com/zig-gamedev/zsdl/archive/89c1fe2d7ef5020c68e71ac574195f09fc949cce.tar.gz",
