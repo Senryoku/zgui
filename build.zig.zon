@@ -23,8 +23,8 @@
             .lazy = true,
         },
         .zgpu = .{
-            .url = "git+https://github.com/Senryoku/zgpu.git#f30f8065e6357a1f74e5ba9b74f53f28e5b476bc",
-            .hash = "zgpu-0.14.0-dev-nqFT5IJ5JQHbExvkfXOFfgUlLqmOhP_rPIS1QczAN8kk",
+            .url = "git+https://github.com/Senryoku/zgpu.git#8f1d587c95d2f3916f99d1454bdc4f79d91d3052",
+            .hash = "zgpu-0.14.0-dev-nqFT5H2CJQHPRfHmd_DcpoNsPblY6EkyCOZV87_G-dCl",
             .lazy = true,
             // .path = "../zgpu",
         },
