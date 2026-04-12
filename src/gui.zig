@@ -40,9 +40,10 @@ pub const DrawVert = extern struct {
 };
 //--------------------------------------------------------------------------------------------------
 
-pub fn init(allocator: std.mem.Allocator) void {
+pub fn init(allocator: std.mem.Allocator, zig_io: std.Io) void {
     if (zguiGetCurrentContext() == null) {
         mem_allocator = allocator;
+        mem_io = zig_io;
         mem_allocations = std.AutoHashMap(usize, usize).init(allocator);
         mem_allocations.?.ensureTotalCapacity(32) catch @panic("zgui: out of memory");
         zguiSetAllocatorFunctions(zguiMemAlloc, zguiMemFree);
@@ -86,6 +87,7 @@ pub fn deinit() void {
         assert(mem_allocations.?.count() == 0);
         mem_allocations.?.deinit();
         mem_allocations = null;
+        mem_io = null;
         mem_allocator = null;
     }
 }
@@ -105,14 +107,14 @@ extern fn zguiDestroyContext(ctx: ?Context) void;
 extern fn zguiGetCurrentContext() ?Context;
 //--------------------------------------------------------------------------------------------------
 var mem_allocator: ?std.mem.Allocator = null;
+var mem_io: ?std.Io = null;
 var mem_allocations: ?std.AutoHashMap(usize, usize) = null;
-var mem_mutex: std.Thread.Mutex = .{};
-// const mem_alignment: std.mem.Alignment = .@"16";
+var mem_mutex: std.Io.Mutex = .init;
 const mem_alignment = 16;
 
 fn zguiMemAlloc(size: usize, _: ?*anyopaque) callconv(.c) ?*anyopaque {
-    mem_mutex.lock();
-    defer mem_mutex.unlock();
+    mem_mutex.lockUncancelable(mem_io.?);
+    defer mem_mutex.unlock(mem_io.?);
 
     const mem = mem_allocator.?.alignedAlloc(
         u8,
@@ -127,8 +129,8 @@ fn zguiMemAlloc(size: usize, _: ?*anyopaque) callconv(.c) ?*anyopaque {
 
 fn zguiMemFree(maybe_ptr: ?*anyopaque, _: ?*anyopaque) callconv(.c) void {
     if (maybe_ptr) |ptr| {
-        mem_mutex.lock();
-        defer mem_mutex.unlock();
+        mem_mutex.lockUncancelable(mem_io.?);
+        defer mem_mutex.unlock(mem_io.?);
 
         if (mem_allocations != null) {
             if (mem_allocations.?.fetchRemove(@intFromPtr(ptr))) |kv| {
@@ -5009,7 +5011,7 @@ test {
 
     if (@import("zgui_options").with_gizmo) _ = gizmo;
 
-    init(testing.allocator);
+    init(testing.allocator, testing.io);
     defer deinit();
 
     io.setIniFilename(null);

@@ -18,13 +18,13 @@
             .lazy = true,
         },
         .zglfw = .{
-            .url = "git+https://github.com/Senryoku/zglfw.git#5e2210141840ea35171dc90dc503ed085efcc655",
-            .hash = "zglfw-0.10.0-dev-zgVDNDbQIQCV4wt38DKoANX6W1mc0MFA97LI9d6vot9y",
+            .url = "git+https://github.com/Senryoku/zglfw.git#72d3175c43b9cb262fe37557c72038d12f9331d0",
+            .hash = "zglfw-0.10.0-dev-zgVDNGO_JQAR73HwtGlMKOQPvTT4v-CEUkseQ0mhHMT6",
             .lazy = true,
         },
         .zgpu = .{
-            .url = "git+https://github.com/Senryoku/zgpu.git#addbb89d7c87f9c5a0d268caa408f5b6533cc092",
-            .hash = "zgpu-0.14.0-dev-nqFT5CjN0QV7bbe1ljbcaBMSFCCdel9KvSDvunvbN57m",
+            .url = "git+https://github.com/Senryoku/zgpu.git#083473666cd1f42ffd704a8ee1d52ab83385487d",
+            .hash = "zgpu-0.14.0-dev-nqFT5I0f0wW08IktuMBNzmcLMKBrX6rt-vkiAVd9daDm",
             .lazy = true,
         },
         .zsdl = .{
