@@ -129,15 +129,17 @@ fn zguiMemAlloc(size: usize, _: ?*anyopaque) callconv(.c) ?*anyopaque {
 
 fn zguiMemFree(maybe_ptr: ?*anyopaque, _: ?*anyopaque) callconv(.c) void {
     if (maybe_ptr) |ptr| {
-        mem_mutex.lockUncancelable(mem_io.?);
-        defer mem_mutex.unlock(mem_io.?);
+        if (mem_io) |zig_io| {
+            mem_mutex.lockUncancelable(zig_io);
+            defer mem_mutex.unlock(zig_io);
 
-        if (mem_allocations != null) {
-            if (mem_allocations.?.fetchRemove(@intFromPtr(ptr))) |kv| {
-                const size = kv.value;
-                // const mem = @as([*]align(mem_alignment.toByteUnits()) u8, @ptrCast(@alignCast(ptr)))[0..size];
-                const mem = @as([*]align(mem_alignment) u8, @ptrCast(@alignCast(ptr)))[0..size];
-                mem_allocator.?.free(mem);
+            if (mem_allocations != null) {
+                if (mem_allocations.?.fetchRemove(@intFromPtr(ptr))) |kv| {
+                    const size = kv.value;
+                    // const mem = @as([*]align(mem_alignment.toByteUnits()) u8, @ptrCast(@alignCast(ptr)))[0..size];
+                    const mem = @as([*]align(mem_alignment) u8, @ptrCast(@alignCast(ptr)))[0..size];
+                    mem_allocator.?.free(mem);
+                }
             }
         }
     }
