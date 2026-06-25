@@ -1,3 +1,7 @@
+# This fork
+
+This fork is the one used by [Deecy](https://github.com/Senryoku/Deecy). The main difference is that it depends on forks of zgpu/zglfw using an updated Dawn dependency.
+
 # [zgui](https://github.com/zig-gamedev/zgui)
 
 Zig build package and bindings for [Dear Imgui](https://github.com/ocornut/imgui) & extras.

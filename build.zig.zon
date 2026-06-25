@@ -18,13 +18,13 @@
             .lazy = true,
         },
         .zglfw = .{
-            .url = "https://github.com/zig-gamedev/zglfw/archive/0dd29d8073487c9fe1e45e6b729b3aac271d5a71.tar.gz",
-            .hash = "zglfw-0.10.0-dev-zgVDNIG4IQBWN_sfMD-xfC9bJS2hbBN2W7jNlDLovcdC",
+            .url = "git+https://github.com/Senryoku/zglfw.git#72d3175c43b9cb262fe37557c72038d12f9331d0",
+            .hash = "zglfw-0.10.0-dev-zgVDNGO_JQAR73HwtGlMKOQPvTT4v-CEUkseQ0mhHMT6",
             .lazy = true,
         },
         .zgpu = .{
-            .url = "https://github.com/zig-gamedev/zgpu/archive/c512b60c1f0cd438dcc6297083d0e3d91ad5e717.tar.gz",
-            .hash = "zgpu-0.12.0-dev-nqFT5OOmCABcwCeEje63Wohd7SqQ73CbPqZzmuqArpgF",
+            .url = "git+https://github.com/Senryoku/zgpu.git#943141736bec63521669bffa8130852627fce991",
+            .hash = "zgpu-0.15.0-dev-nqFT5HcjzAUTfFv_SBBNhhYz5q9CUmrqYl7U1etN8EKV",
             .lazy = true,
         },
         .zsdl = .{
